@@ -1,0 +1,95 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>Pokédex</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Pokédex</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Buscador -->
+  <ion-searchbar 
+    [(ngModel)]="searchTerm"
+    (ionInput)="onSearchChange($event)"
+    placeholder="Buscar Pokémon por nombre o tipo"
+    debounce="300">
+  </ion-searchbar>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando Pokémon...</p>
+  </div>
+
+  <!-- Lista de Pokémon -->
+  <div *ngIf="!isLoading" class="pokemon-grid">
+    <ion-card *ngFor="let pokemon of filteredPokemon" class="pokemon-card">
+      <div class="pokemon-header">
+        <img [src]="pokemon.image" [alt]="pokemon.name" class="pokemon-image">
+        <div class="pokemon-info">
+          <h2>{{ pokemon.name | titlecase }}</h2>
+          <p class="pokemon-id">#{{ pokemon.id.toString().padStart(3, '0') }}</p>
+        </div>
+      </div>
+
+      <ion-card-content>
+        <div class="pokemon-types">
+          <ion-chip 
+            *ngFor="let type of pokemon.type" 
+            [style.background-color]="getTypeColor(type)"
+            class="type-chip">
+            {{ type | titlecase }}
+          </ion-chip>
+        </div>
+
+        <div class="pokemon-stats">
+          <div class="stat">
+            <span class="stat-label">Altura:</span>
+            <span class="stat-value">{{ pokemon.height / 10 }}m</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Peso:</span>
+            <span class="stat-value">{{ pokemon.weight / 10 }}kg</span>
+          </div>
+        </div>
+
+        <div class="pokemon-abilities">
+          <p><strong>Habilidades:</strong></p>
+          <div class="abilities-list">
+            <ion-chip *ngFor="let ability of pokemon.abilities" color="medium">
+              {{ ability | titlecase }}
+            </ion-chip>
+          </div>
+        </div>
+
+        <div class="action-buttons">
+          <ion-button 
+            fill="outline" 
+            color="primary" 
+            (click)="editPokemon(pokemon)">
+            <ion-icon name="create-outline" slot="start"></ion-icon>
+            Editar
+          </ion-button>
+          <ion-button 
+            fill="outline" 
+            color="danger" 
+            (click)="deletePokemon(pokemon)">
+            <ion-icon name="trash-outline" slot="start"></ion-icon>
+            Eliminar
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  </div>
+
+  <!-- No results -->
+  <div *ngIf="!isLoading && filteredPokemon.length === 0" class="no-results">
+    <ion-icon name="search-outline" size="large"></ion-icon>
+    <h3>No se encontraron Pokémon</h3>
+    <p>Intenta con otro término de búsqueda</p>
+  </div>
+</ion-content>

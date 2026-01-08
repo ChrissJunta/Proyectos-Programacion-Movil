@@ -1,0 +1,29 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Menu de Inicio</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Iniciar Sesión</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-item fill="solid">
+        <ion-label position="floating">Usuario</ion-label>
+        <ion-input #usernameInput type="text"></ion-input>
+      </ion-item>
+
+      <ion-item fill="solid">
+        <ion-label position="floating">Contraseña</ion-label>
+        <ion-input #passwordInput type="password"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" (click)="onLogin()" class="ion-margin-top">
+        Ingresar
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

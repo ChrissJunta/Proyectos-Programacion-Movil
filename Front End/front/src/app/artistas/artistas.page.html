@@ -1,0 +1,70 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Artistas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Nuevo Artista</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-item>
+        <ion-input label="Identificador"
+          [(ngModel)]="nuevoArtista.Identificador_Artista">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Cédula"
+          [(ngModel)]="nuevoArtista.Cedula_Artista">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Nombre"
+          [(ngModel)]="nuevoArtista.Nombre_Artista">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Apellido"
+          [(ngModel)]="nuevoArtista.Apellido_Artista">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Tipo"
+          [(ngModel)]="nuevoArtista.Tipo_Artista">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="País"
+          [(ngModel)]="nuevoArtista.Pais_Origen_Artista">
+        </ion-input>
+      </ion-item>
+
+      <ion-button expand="block" color="success" (click)="crearArtista()">
+        Guardar Artista
+      </ion-button>
+
+    </ion-card-content>
+  </ion-card>
+
+  <ion-list *ngIf="!cargando">
+    <ion-item *ngFor="let artista of artistas">
+      <ion-label>
+        <h2>{{ artista.Nombre_Artista }} {{ artista.Apellido_Artista }}</h2>
+        <p>{{ artista.Tipo_Artista }} - {{ artista.Pais_Origen_Artista }}</p>
+      </ion-label>
+    </ion-item>
+  </ion-list>
+
+  <ion-spinner *ngIf="cargando"></ion-spinner>
+
+</ion-content>

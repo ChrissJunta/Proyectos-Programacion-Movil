@@ -1,0 +1,34 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Usuarios Firebase</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- Loader mientras Firebase responde -->
+  <ng-container *ngIf="!(usuarios$ | async); else listaUsuarios">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Cargando usuarios...</p>
+  </ng-container>
+
+  <!-- Lista completa -->
+  <ng-template #listaUsuarios>
+    <ion-list>
+
+      <!-- 🔥 Iteramos usuarios en tiempo real -->
+      <ion-item *ngFor="let u of usuarios$ | async">
+        <ion-avatar slot="start">
+          <img [src]="u.foto" alt="foto usuario" />
+        </ion-avatar>
+
+        <ion-label>
+          <h2>{{ u.nombre }}</h2>
+          <p>{{ u.rol }}</p>
+        </ion-label>
+      </ion-item>
+
+    </ion-list>
+  </ng-template>
+
+</ion-content>

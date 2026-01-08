@@ -1,0 +1,128 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Editar {{ pokemon?.name | titlecase }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="modal-content">
+    <div class="pokemon-image-section">
+      <img [src]="editedPokemon.image" [alt]="editedPokemon.name" class="pokemon-image">
+    </div>
+
+    <ion-item>
+      <ion-label position="stacked">Nombre</ion-label>
+      <ion-input 
+        [(ngModel)]="editedPokemon.name" 
+        placeholder="Nombre del Pokémon">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Altura (decímetros)</ion-label>
+      <ion-input 
+        type="number" 
+        [(ngModel)]="editedPokemon.height" 
+        placeholder="Altura">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">Peso (hectogramos)</ion-label>
+      <ion-input 
+        type="number" 
+        [(ngModel)]="editedPokemon.weight" 
+        placeholder="Peso">
+      </ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="stacked">URL de imagen</ion-label>
+      <ion-input 
+        [(ngModel)]="editedPokemon.image" 
+        placeholder="URL de la imagen">
+      </ion-input>
+    </ion-item>
+
+    <!-- Tipos -->
+    <div class="section">
+      <h3>Tipos</h3>
+      <div class="chips-container">
+        <ion-chip 
+          *ngFor="let type of editedPokemon.type; let i = index" 
+          color="primary">
+          {{ type | titlecase }}
+          <ion-icon 
+            name="close-circle" 
+            (click)="removeType(i)">
+          </ion-icon>
+        </ion-chip>
+      </div>
+      <div class="add-item">
+        <ion-input 
+          [(ngModel)]="newType" 
+          placeholder="Agregar tipo"
+          (keyup.enter)="addType()">
+        </ion-input>
+        <ion-button 
+          fill="clear" 
+          (click)="addType()"
+          [disabled]="!newType.trim()">
+          <ion-icon name="add"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+
+    <!-- Habilidades -->
+    <div class="section">
+      <h3>Habilidades</h3>
+      <div class="chips-container">
+        <ion-chip 
+          *ngFor="let ability of editedPokemon.abilities; let i = index" 
+          color="secondary">
+          {{ ability | titlecase }}
+          <ion-icon 
+            name="close-circle" 
+            (click)="removeAbility(i)">
+          </ion-icon>
+        </ion-chip>
+      </div>
+      <div class="add-item">
+        <ion-input 
+          [(ngModel)]="newAbility" 
+          placeholder="Agregar habilidad"
+          (keyup.enter)="addAbility()">
+        </ion-input>
+        <ion-button 
+          fill="clear" 
+          (click)="addAbility()"
+          [disabled]="!newAbility.trim()">
+          <ion-icon name="add"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="footer-buttons">
+      <ion-button 
+        fill="outline" 
+        color="medium" 
+        (click)="cancel()">
+        Cancelar
+      </ion-button>
+      <ion-button 
+        color="primary" 
+        (click)="save()">
+        Guardar
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>

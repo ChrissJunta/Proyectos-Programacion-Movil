@@ -1,0 +1,6 @@
+[
+  { "user": "admin", "pass": "1234", "nombre": "Administrador" },
+  { "user": "christian", "pass": "5678", "nombre": "Christian Junta" },
+  { "user": "plara", "pass": "Patricio123", "nombre": "Patricio Lara" },
+  { "user": "kcastillo", "pass": "kevin123", "nombre": "Kevin Castillo" }
+]

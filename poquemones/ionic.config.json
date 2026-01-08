@@ -1,0 +1,7 @@
+{
+  "name": "poquemones",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
