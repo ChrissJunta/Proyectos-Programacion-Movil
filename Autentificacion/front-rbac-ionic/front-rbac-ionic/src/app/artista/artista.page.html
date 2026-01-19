@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Artistas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+
+  <!-- FORM solo para writer/owner -->
+  <ion-card *ngIf="canWrite">
+    <ion-card-header>
+      <ion-card-title>{{ editId ? 'Editar' : 'Nuevo' }} artista</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+
+      <ion-item>
+        <ion-input
+          label="Identificador (6)"
+          [disabled]="!!editId"
+          maxlength="6"
+          [(ngModel)]="form.Identificador_Artista">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Cédula" maxlength="15" [(ngModel)]="form.Cedula_Artista"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Nombre" maxlength="30" [(ngModel)]="form.Nombre_Artista"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Apellido" maxlength="30" [(ngModel)]="form.Apellido_Artista"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Tipo" maxlength="30" [(ngModel)]="form.Tipo_Artista"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="País origen" maxlength="40" [(ngModel)]="form.Pais_Origen_Artista"></ion-input>
+      </ion-item>
+
+      <ion-button expand="block" (click)="save()">
+        {{ editId ? 'Actualizar' : 'Guardar' }}
+      </ion-button>
+
+      <ion-button expand="block" fill="outline" (click)="resetForm()" *ngIf="editId">
+        Cancelar edición
+      </ion-button>
+
+    </ion-card-content>
+  </ion-card>
+
+  <ion-item *ngIf="loading">
+    <ion-label>Cargando...</ion-label>
+  </ion-item>
+
+  <!-- LISTADO -->
+  <ion-list>
+    <ion-item *ngFor="let a of artistas">
+      <ion-label>
+        <h2>{{ a.Identificador_Artista }} - {{ a.Nombre_Artista || '-' }} {{ a.Apellido_Artista || '' }}</h2>
+        <p>
+          Cédula: {{ a.Cedula_Artista || '-' }} |
+          Tipo: {{ a.Tipo_Artista || '-' }} |
+          País: {{ a.Pais_Origen_Artista || '-' }}
+        </p>
+      </ion-label>
+
+      <ion-button size="small" (click)="edit(a)" *ngIf="canWrite">
+        Editar
+      </ion-button>
+
+      <ion-button size="small" color="danger" (click)="remove(a)" *ngIf="isOwner">
+        Eliminar
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+</ion-content>

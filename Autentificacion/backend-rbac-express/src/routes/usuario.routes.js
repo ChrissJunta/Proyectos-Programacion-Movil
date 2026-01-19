@@ -6,4 +6,5 @@ const { createUser, listUsers } = require("../controllers/usuario.controller");
 router.get("/", authMiddleware, allowDbRoles("db_owner"), listUsers);
 router.post("/", authMiddleware, allowDbRoles("db_owner"), createUser);
 
+
 module.exports = router;

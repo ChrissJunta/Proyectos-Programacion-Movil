@@ -1,12 +1,12 @@
 function ok(res, data, message = "OK") {
-  return res.status(200).json({ ok: true, message, data });
+  return res.json({ ok: true, message, data });
 }
 
-function created(res, data, message = "CREATED") {
+function created(res, data, message = "Creado") {
   return res.status(201).json({ ok: true, message, data });
 }
 
-function fail(res, status, message) {
+function fail(res, status, message = "Error") {
   return res.status(status).json({ ok: false, message });
 }
 

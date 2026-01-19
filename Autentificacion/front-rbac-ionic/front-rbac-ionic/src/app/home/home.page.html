@@ -1,0 +1,32 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Bienvenido</h2>
+  <p>Si ves esto, la navegación funciona ✅</p>
+
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>Sesión</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Usuario:</strong> {{ username }}</p>
+      <p><strong>Rol SQL:</strong> {{ dbRole }}</p>
+    </ion-card-content>
+  </ion-card>
+
+  <ion-button expand="block" routerLink="/artista" *ngIf="canRead">
+    Ver Artistas
+  </ion-button>
+
+  <ion-button expand="block" color="warning" routerLink="/usuarios" *ngIf="isOwner">
+    Gestión de Usuarios (solo SA / db_owner)
+  </ion-button>
+
+  <ion-button expand="block" color="danger" (click)="logout()">
+    Cerrar sesión
+  </ion-button>
+</ion-content>
