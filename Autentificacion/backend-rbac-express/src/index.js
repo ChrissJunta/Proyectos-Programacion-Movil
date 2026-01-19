@@ -16,6 +16,7 @@ app.get("/", (req, res) => {
   res.send("API RBAC funcionando 🚀");
 });
 
+app.use("/api", require("./routes/api"));
 // Puerto
 const PORT = process.env.PORT || 3000;
 

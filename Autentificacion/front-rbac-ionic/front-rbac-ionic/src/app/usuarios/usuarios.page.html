@@ -1,13 +1,52 @@
-<ion-header [translucent]="true">
+<ion-header>
   <ion-toolbar>
-    <ion-title>usuarios</ion-title>
+    <ion-title>Usuarios (solo SA)</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">usuarios</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+
+  <ion-card *ngIf="isSa; else noAccess">
+    <ion-card-header>
+      <ion-card-title>Crear nuevo login SQL</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-item>
+        <ion-input label="Username" [(ngModel)]="username"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-input label="Password" type="password" [(ngModel)]="password"></ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-select label="Rol" [(ngModel)]="dbRole">
+          <ion-select-option value="db_datareader">db_datareader (Lectura)</ion-select-option>
+          <ion-select-option value="db_datawriter">db_datawriter (Escritura)</ion-select-option>
+          <ion-select-option value="db_owner">db_owner (Admin BD)</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <ion-button expand="block" (click)="crear()" [disabled]="loading">
+        {{ loading ? 'Creando...' : 'Crear usuario' }}
+      </ion-button>
+
+      <ion-text *ngIf="resultMsg">
+        <p style="margin-top: 12px;">{{ resultMsg }}</p>
+      </ion-text>
+    </ion-card-content>
+  </ion-card>
+
+  <ng-template #noAccess>
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Acceso restringido</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        Solo el usuario <strong>sa</strong> puede crear logins.
+      </ion-card-content>
+    </ion-card>
+  </ng-template>
+
 </ion-content>

@@ -1,48 +1,71 @@
+const jwt = require("jsonwebtoken");
+const { v4: uuidv4 } = require("uuid");
 const { queryWithUser } = require("../config/sqlserver.dynamic");
-const { signToken } = require("../utils/jwt");
-const { fail, ok } = require("../utils/response");
-const crypto = require("crypto");
-const { setSession } = require("../utils/session.store");
+const { saveSession } = require("../utils/sessions");
 
-function resolveDbRole(row) {
-  // prioriza el más alto
-  if (row.is_owner === 1) return "db_owner";
-  if (row.is_writer === 1) return "db_datawriter";
-  if (row.is_reader === 1) return "db_datareader";
-  return "public";
-}
-
+// POST /api/auth/login
 async function login(req, res) {
   try {
     const { username, password } = req.body;
-    if (!username || !password) return fail(res, 400, "username y password son requeridos");
 
-    // 1) Intentar conectar y leer rol real (si falla, credenciales inválidas)
-    const roleQuery = `
-      SELECT
-        IS_MEMBER('db_owner')      AS is_owner,
-        IS_MEMBER('db_datawriter') AS is_writer,
-        IS_MEMBER('db_datareader') AS is_reader;
-    `;
+    if (!username || !String(username).trim()) {
+      return res.status(400).json({ ok: false, message: "username es obligatorio" });
+    }
+    if (!password || !String(password).trim()) {
+      return res.status(400).json({ ok: false, message: "password es obligatorio" });
+    }
 
-    const result = await queryWithUser({ username, password }, roleQuery);
-    const row = result.recordset?.[0];
-    if (!row) return fail(res, 401, "Credenciales inválidas");
+    const u = String(username).trim();
+    const p = String(password);
 
-    const dbRole = resolveDbRole(row);
+    // 1) Validación real contra SQL Server (si falla -> 401)
+    let dbRole = "public";
+    try {
+      const result = await queryWithUser(
+        { username: u, password: p },
+        `
+        SELECT TOP 1 r.name AS roleName
+        FROM sys.database_role_members drm
+        JOIN sys.database_principals r ON drm.role_principal_id = r.principal_id
+        JOIN sys.database_principals m ON drm.member_principal_id = m.principal_id
+        WHERE m.name = USER_NAME()
+        ORDER BY
+          CASE r.name
+            WHEN 'db_owner' THEN 1
+            WHEN 'db_datawriter' THEN 2
+            WHEN 'db_datareader' THEN 3
+            ELSE 99
+          END
+        `
+      );
 
-    // 2) Crear sesión (jti) y guardar credenciales en memoria
-    const jti = crypto.randomUUID();
-    setSession(jti, { username, password });
+      dbRole = result.recordset?.[0]?.roleName ?? "public";
+    } catch (e) {
+      return res.status(401).json({ ok: false, message: "Credenciales inválidas" });
+    }
 
-    // 3) Emitir JWT
-    const payload = { username, dbRole, jti };
-    const token = signToken(payload);
+    // 2) Crear sesión en memoria
+    const jti = uuidv4();
+    saveSession(jti, { username: u, password: p });
 
-    return ok(res, { token, user: { username, dbRole } }, "Login exitoso");
+    // 3) Crear token
+    const token = jwt.sign(
+      { username: u, dbRole, jti },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || "2h" }
+    );
+
+    return res.json({
+      ok: true,
+      message: "Login exitoso",
+      data: {
+        token,
+        user: { username: u, dbRole },
+      },
+    });
   } catch (e) {
-    // Si no pudo conectar, es credencial inválida o el user no tiene acceso a la DB
-    return fail(res, 401, "No se pudo autenticar (credenciales o permisos de acceso a la BD)");
+    console.error("❌ login error:", e);
+    return res.status(500).json({ ok: false, message: "Error en login" });
   }
 }
 

@@ -1,32 +1,68 @@
-const { execSPWithUser, sql } = require("../config/sqlserver.dynamic");
-const { fail, created, ok } = require("../utils/response");
+const { queryWithUser, sql } = require("../config/sqlserver.dynamic");
 
-async function createUser(req, res) {
+// POST /api/usuarios/crear-login
+async function crearLogin(req, res) {
   try {
-    const { username, password, rol } = req.body;
-    if (!username || !password || !rol) return fail(res, 400, "Datos incompletos");
+    // Solo SA puede crear logins
+    if ((req.user?.username ?? "").toLowerCase() !== "sa") {
+      return res.status(403).json({ ok: false, message: "Solo el usuario 'sa' puede crear logins" });
+    }
 
-    // Solo db_owner debe pasar aquí (por middleware)
-    const result = await execSPWithUser(req.db, "add_users", [
-      { name: "username", type: sql.VarChar(50), value: username },
-      { name: "password", type: sql.VarChar(200), value: password },
-      { name: "rol", type: sql.VarChar(20), value: rol } // ej: db_datareader/db_datawriter/db_owner
-    ]);
+    const { username, password, dbRole } = req.body;
 
-    return created(res, { result: result.recordset ?? [] }, "Usuario creado");
-  } catch {
-    // Aquí SQL Server puede bloquear si el usuario no tiene permisos reales
-    return fail(res, 500, "Error creando usuario (permisos SQL o SP)");
+    if (!username || !String(username).trim()) {
+      return res.status(400).json({ ok: false, message: "username es obligatorio" });
+    }
+    if (!password || !String(password).trim()) {
+      return res.status(400).json({ ok: false, message: "password es obligatorio" });
+    }
+
+    const login = String(username).trim();
+    const dbName = process.env.SQLSERVER_DB;
+
+    const allowedRoles = ["db_datareader", "db_datawriter", "db_owner"];
+    const role = allowedRoles.includes(dbRole) ? dbRole : "db_datareader";
+
+    // req.db debe venir del middleware (credenciales del usuario logueado)
+    const reqDb = req.db;
+
+    // 1) Crear LOGIN (server)
+    await queryWithUser(
+      reqDb,
+      `EXEC sp_addlogin @loginame=@u, @passwd=@p, @defdb=@db`,
+      [
+        { name: "u", type: sql.NVarChar(128), value: login },
+        { name: "p", type: sql.NVarChar(128), value: String(password) },
+        { name: "db", type: sql.NVarChar(128), value: dbName },
+      ]
+    );
+
+    // 2) Crear USER (db)
+    await queryWithUser(
+      reqDb,
+      `USE ${dbName}; EXEC sp_adduser @loginame=@u, @name_in_db=@u`,
+      [{ name: "u", type: sql.NVarChar(128), value: login }]
+    );
+
+    // 3) Asignar rol
+    await queryWithUser(
+      reqDb,
+      `USE ${dbName}; EXEC sp_addrolemember @rolename=@r, @membername=@u`,
+      [
+        { name: "r", type: sql.NVarChar(128), value: role },
+        { name: "u", type: sql.NVarChar(128), value: login },
+      ]
+    );
+
+    return res.status(201).json({
+      ok: true,
+      message: "Login/User creado y rol asignado",
+      data: { username: login, dbRole: role },
+    });
+  } catch (e) {
+    console.error("❌ crearLogin error:", e);
+    return res.status(500).json({ ok: false, message: e?.message ?? "Error creando login" });
   }
 }
 
-async function listUsers(req, res) {
-  try {
-    const result = await execSPWithUser(req.db, "list_users", []);
-    return ok(res, result.recordset ?? [], "Usuarios");
-  } catch {
-    return fail(res, 500, "Error listando usuarios");
-  }
-}
-
-module.exports = { createUser, listUsers };
+module.exports = { crearLogin };

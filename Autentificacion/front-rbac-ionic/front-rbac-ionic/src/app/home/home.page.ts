@@ -28,4 +28,8 @@ export class HomePage {
     this.auth.logout();
     this.router.navigateByUrl('/login');
   }
+  get isSa() {
+  return this.auth.isSa();
+}
+
 }

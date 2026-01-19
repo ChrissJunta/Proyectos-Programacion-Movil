@@ -44,6 +44,9 @@ export class AuthService {
   isOwner(): boolean {
     return this.dbRole === 'db_owner';
   }
+  isSa(): boolean {
+      return (this.user?.username ?? '').toLowerCase() === 'sa';
+    }
 
   canWrite(): boolean {
     return this.dbRole === 'db_datawriter' || this.dbRole === 'db_owner';
