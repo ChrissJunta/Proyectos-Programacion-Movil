@@ -6,7 +6,7 @@ export type DbRole = 'db_datareader' | 'db_datawriter' | 'db_owner';
 
 @Injectable({ providedIn: 'root' })
 export class UsuariosService {
-  private baseUrl = 'http://localhost:3000/api';
+  private baseUrl = 'http://localhost:8080/api';
 
   constructor(private http: HttpClient) {}
 
